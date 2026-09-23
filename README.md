@@ -112,8 +112,8 @@ cp .env.example .env
 Set at minimum:
 
 ```env
-APP_URL=http://localhost:3000
-CLIENT_URL=http://localhost:3000
+APP_URL=http://localhost:5000
+CLIENT_URL=http://localhost:5000
 NODE_ENV=development
 
 MONGODB_URI=mongodb://127.0.0.1:27017/studyhub
