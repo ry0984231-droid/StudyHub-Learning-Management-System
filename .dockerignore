@@ -1,0 +1,18 @@
+# Keep local dependencies and generated output out of the Docker build context.
+node_modules
+dist
+coverage
+.git
+.vscode
+.idea
+
+# Never send local environment files or uploaded user content to the builder.
+.env
+.env.*
+!.env.example
+uploads
+
+# Local and diagnostic files
+*.log
+*.tmp
+PROJECT_REVIEW.md

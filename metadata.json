@@ -1,0 +1,6 @@
+{
+  "name": "StudyHub — Learning Management System",
+  "description": "A modern university and college Learning Management System featuring interactive courses, video lessons, quiz system, certificates, role-based dashboards, and StudyHub AI assistant.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

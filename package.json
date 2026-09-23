@@ -1,0 +1,46 @@
+{
+  "name": "studyhub-lms",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "vite build && esbuild server.js --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.mjs",
+    "build:client": "vite build",
+    "start": "node -e \"process.env.NODE_ENV='production'; import('./dist/server.mjs')\"",
+    "preview": "vite preview",
+    "check": "node --check server.js",
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\""
+  },
+  "dependencies": {
+    "@google/genai": "^2.4.0",
+    "@tailwindcss/vite": "^4.1.14",
+    "@types/nodemailer": "^8.0.1",
+    "@vitejs/plugin-react": "^5.0.4",
+    "bcryptjs": "^3.0.3",
+    "canvas-confetti": "^1.9.4",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.3",
+    "express": "^4.22.3",
+    "express-rate-limit": "^8.7.0",
+    "google-auth-library": "^10.9.1",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^0.546.0",
+    "mongodb": "^7.6.0",
+    "motion": "^12.23.24",
+    "multer": "^2.4.0",
+    "nodemailer": "^10.0.10",
+    "react": "^19.0.1",
+    "react-dom": "^19.0.1",
+    "recharts": "^3.10.1",
+    "vite": "^6.2.3",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "esbuild": "^0.25.0",
+    "tailwindcss": "^4.1.14",
+    "vite": "^6.2.3"
+  }
+}
