@@ -19,69 +19,84 @@ class DocumentStore {
     persisted = emptyDatabase();
 
     async connect() {
-        if (!config.mongoUri)
+        if (!config.mongoUri) {
             throw new Error(
                 "MONGODB_URI is required. Set it in .env before starting StudyHub."
             );
+        }
 
         this.client = new MongoClient(config.mongoUri, {
-            serverSelectionTimeoutMS: 10000
+            serverSelectionTimeoutMS: 10000,
+            connectTimeoutMS: 10000
         });
+
         try {
             await this.client.connect();
         } catch (error) {
             await this.client.close().catch(() => undefined);
             this.client = null;
+
             const code = error?.code || error?.cause?.code;
             const reason = [error?.name, code, error?.message]
                 .filter(Boolean)
                 .join(" / ");
+
             throw new Error(
-                `Could not connect to MongoDB${reason ? ` (${reason})` : ""}. Verify MONGODB_URI and credentials. For Atlas, allow your current public IP in Network Access and confirm the cluster is running. For Docker, start the mongodb service and use mongodb://mongodb:27017/studyhub from the app container (or mongodb://127.0.0.1:27017/studyhub from the host).`
+                `Could not connect to MongoDB${reason ? ` (${reason})` : ""}. ` +
+                "For authentication failures, verify the Atlas database username and password. " +
+                "For Atlas network errors, allow the app server's public IP in Network Access and confirm the cluster is running."
             );
         }
+
         this.database = this.client.db(config.mongoDbName);
 
-        const records = await Promise.all(
-            collectionNames.map(async name => [
-                name,
-                await this.collection(name).find({}).toArray()
-            ])
-        );
+        try {
+            const records = await Promise.all(
+                collectionNames.map(async name => [
+                    name,
+                    await this.collection(name).find({}).toArray()
+                ])
+            );
 
-        records.forEach(([name, data]) => (this.data[name] = data));
+            records.forEach(([name, data]) => {
+                this.data[name] = data;
+            });
 
-        await Promise.all([
-            this.collection("users").createIndex(
-                { email: 1 }, { unique: true }
-            ),
-            this.collection("courses").createIndex(
-                { slug: 1 }, { unique: true }
-            ),
-            this.collection("enrollments").createIndex(
-                { userId: 1, courseId: 1 }, { unique: true }
-            ),
-            this.collection("certificates").createIndex(
-                { certificateId: 1 }, { unique: true }
-            ),
-            this.collection("payments").createIndex(
-                { paymentId: 1 }, { unique: true, sparse: true }
-            ),
-            this.collection("payments").createIndex(
-                { orderId: 1 }, { unique: true, sparse: true }
-            )
-        ]);
+            await Promise.all([
+                this.collection("users").createIndex(
+                    { email: 1 }, { unique: true }
+                ),
+                this.collection("courses").createIndex(
+                    { slug: 1 }, { unique: true }
+                ),
+                this.collection("enrollments").createIndex(
+                    { userId: 1, courseId: 1 }, { unique: true }
+                ),
+                this.collection("certificates").createIndex(
+                    { certificateId: 1 }, { unique: true }
+                ),
+                this.collection("payments").createIndex(
+                    { paymentId: 1 }, { unique: true, sparse: true }
+                ),
+                this.collection("payments").createIndex(
+                    { orderId: 1 }, { unique: true, sparse: true }
+                )
+            ]);
 
-        this.persisted = structuredClone(this.data);
-
-        console.log(
-            `Connected to MongoDB database: ${config.mongoDbName}`
-        );
+            this.persisted = structuredClone(this.data);
+            console.log(`Connected to MongoDB database: ${config.mongoDbName}`);
+        } catch (error) {
+            await this.client.close().catch(() => undefined);
+            this.client = null;
+            this.database = null;
+            throw error;
+        }
     }
 
     collection(name) {
-        if (!this.database)
+        if (!this.database) {
             throw new Error("MongoDB has not been connected.");
+        }
         return this.database.collection(name);
     }
 
@@ -100,7 +115,7 @@ class DocumentStore {
 
                 for (const record of snapshot[name]) {
                     const oldRecord = previous.get(String(record._id));
-                    if (!oldRecord || !isDeepStrictEqual(oldRecord, record))
+                    if (!oldRecord || !isDeepStrictEqual(oldRecord, record)) {
                         writes.push({
                             replaceOne: {
                                 filter: { _id: record._id },
@@ -108,16 +123,19 @@ class DocumentStore {
                                 upsert: true
                             }
                         });
+                    }
                 }
 
-                if (writes.length)
+                if (writes.length) {
                     await collection.bulkWrite(writes, { ordered: true });
+                }
 
                 const removedIds = [...previous.keys()]
                     .filter(id => !current.has(id))
                     .map(id => previous.get(id)._id);
-                if (removedIds.length)
+                if (removedIds.length) {
                     await collection.deleteMany({ _id: { $in: removedIds } });
+                }
 
                 this.persisted[name] = snapshot[name];
             }));
@@ -132,6 +150,8 @@ class DocumentStore {
 
     async close() {
         await this.client?.close();
+        this.client = null;
+        this.database = null;
     }
 
     get users() { return this.data.users; }
