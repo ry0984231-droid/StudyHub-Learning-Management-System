@@ -1,5 +1,9 @@
 import dotenv from "dotenv";
-dotenv.config();
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const projectRoot = fileURLToPath(new URL("../../", import.meta.url));
+dotenv.config({ path: path.join(projectRoot, ".env") });
 
 
 export const config = {

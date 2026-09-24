@@ -33,9 +33,11 @@ class DocumentStore {
             await this.client.close().catch(() => undefined);
             this.client = null;
             const code = error?.code || error?.cause?.code;
-            const reason = [error?.name, code].filter(Boolean).join(" / ");
+            const reason = [error?.name, code, error?.message]
+                .filter(Boolean)
+                .join(" / ");
             throw new Error(
-                `Could not connect to MongoDB${reason ? ` (${reason})` : ""}. Check MONGODB_URI, database credentials, network access/IP allow-list, and the Docker MongoDB service.`
+                `Could not connect to MongoDB${reason ? ` (${reason})` : ""}. Verify MONGODB_URI and credentials. For Atlas, allow your current public IP in Network Access and confirm the cluster is running. For Docker, start the mongodb service and use mongodb://mongodb:27017/studyhub from the app container (or mongodb://127.0.0.1:27017/studyhub from the host).`
             );
         }
         this.database = this.client.db(config.mongoDbName);
