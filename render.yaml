@@ -1,0 +1,44 @@
+services:
+  - type: web
+    name: studyhub
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: "22.22.0"
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "10000"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB_NAME
+        value: studyhub
+      - key: APP_URL
+        fromService:
+          type: web
+          name: studyhub
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: CLIENT_URL
+        fromService:
+          type: web
+          name: studyhub
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: SMTP_HOST
+        value: smtp-relay.brevo.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_SECURE
+        value: "false"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
