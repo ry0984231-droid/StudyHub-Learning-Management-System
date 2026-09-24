@@ -34,8 +34,6 @@ export default defineConfig(() => ({
   build: {
     outDir: path.resolve(__dirname, '../dist'),
     emptyOutDir: true,
-
-    // Prevent warning for large JavaScript chunks
     chunkSizeWarningLimit: 1000,
   },
 }));
