@@ -4,12 +4,14 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node server.js",
-    "build": "vite build && esbuild server.js --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.mjs",
-    "build:client": "vite build",
+    "dev": "node backend/server.js",
+    "dev:frontend": "vite --config frontend/vite.config.js --host 0.0.0.0 --port 5173",
+    "dev:all": "concurrently -k -n backend,frontend \"npm:dev\" \"npm:dev:frontend\"",
+    "build": "vite build --config frontend/vite.config.js && esbuild backend/server.js --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.mjs",
+    "build:client": "vite build --config frontend/vite.config.js",
     "start": "node -e \"process.env.NODE_ENV='production'; import('./dist/server.mjs')\"",
     "preview": "vite preview",
-    "check": "node --check server.js",
+    "check": "node --check backend/server.js",
     "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\""
   },
   "dependencies": {
@@ -39,6 +41,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",
+    "concurrently": "^10.0.5",
     "esbuild": "^0.25.0",
     "tailwindcss": "^4.1.14",
     "vite": "^6.2.3"

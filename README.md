@@ -59,25 +59,16 @@ Public registration creates student accounts only. An administrator can promote 
 ## Project Structure
 
 ```text
-StudyHub-fixed/
-├── src/
-│   ├── components/
-│   ├── context/
-│   ├── pages/
-│   ├── services/
-│   ├── App.js
-│   ├── main.js
-│   └── index.css
-├── server/
-│   ├── config/
-│   ├── controllers/
-│   ├── db/
-│   ├── middleware/
-│   ├── routes/
-│   └── services/
-├── server.js
-├── vite.config.js
-├── package.json
+StudyHub/
+├── backend/
+│   ├── server/       # routes, controllers, database, middleware
+│   └── server.js     # Express API server
+├── frontend/
+│   ├── src/          # React pages, components and services
+│   ├── index.html
+│   └── vite.config.js
+├── docker-compose.yml
+├── package.json      # shared install and run scripts
 └── .env.example
 ```
 
@@ -113,8 +104,9 @@ Set at minimum:
 
 ```env
 APP_URL=http://localhost:5000
-CLIENT_URL=http://localhost:5000
+CLIENT_URL=http://localhost:5173
 NODE_ENV=development
+PORT=5000
 
 MONGODB_URI=mongodb://127.0.0.1:27017/studyhub
 MONGODB_DB_NAME=studyhub
@@ -125,26 +117,19 @@ JWT_SECRET=replace_this_with_a_long_random_secret_at_least_32_characters
 ## Run
 
 ```bash
+npm run dev:all
+```
+
+Open the frontend at `http://localhost:5173`. The API runs at `http://localhost:5000`; Vite forwards `/api` requests to it.
+
+To run them separately in two terminals:
+
+```bash
 npm run dev
+npm run dev:frontend
 ```
 
-Open:
-
-```text
-http://localhost:3000
-```
-
-The Express server hosts the Vite development middleware, while all REST APIs are under:
-
-```text
-http://localhost:3000/api
-```
-
-Health check:
-
-```text
-http://localhost:3000/api/health
-```
+Health check: `http://localhost:5000/api/health`.
 
 ## Production Build
 
@@ -161,7 +146,7 @@ Real Razorpay and SMTP functionality requires their respective credentials in `.
 
 1. Copy `.env.example` to `.env` and set a unique `JWT_SECRET` of at least 32 characters. Add Razorpay and SMTP values only if those integrations are enabled.
 2. Start the app and MongoDB with `docker compose up --build -d`.
-3. Check `http://localhost:3000/api/health` and open `http://localhost:3000`.
+3. Check `http://localhost:5000/api/health` and open `http://localhost:5173`.
 4. View service logs with `docker compose logs -f app` and stop the stack with `docker compose down`.
 
 The Compose app service connects to its private MongoDB service and stores uploaded videos in a persistent volume. For a public production deployment, terminate TLS at a reverse proxy/load balancer and set `APP_URL` and `CLIENT_URL` to the public HTTPS origin.
