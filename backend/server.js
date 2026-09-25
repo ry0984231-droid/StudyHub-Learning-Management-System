@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import path from "path";
 
 import { apiRouter } from "./server/routes/api.js";
 import { config } from "./server/config/config.js";
@@ -13,7 +12,6 @@ import {
 } from "./server/middleware/errorHandler.js";
 
 async function startServer() {
-
     if (
         !config.jwtSecret ||
         config.jwtSecret.length < 32
@@ -30,6 +28,7 @@ async function startServer() {
 
     app.disable("x-powered-by");
 
+    // Security headers
     app.use(
         helmet({
             contentSecurityPolicy:
@@ -39,14 +38,38 @@ async function startServer() {
         })
     );
 
+    // CORS
+    const allowedOrigins = [
+        config.clientUrl,
+        "http://localhost:5173",
+    ].filter(Boolean);
 
     app.use(
         cors({
-            origin: config.clientUrl,
+            origin(origin, callback) {
+                // Allow requests without Origin header
+                // such as Postman/server-to-server requests
+                if (!origin) {
+                    return callback(null, true);
+                }
+
+                if (allowedOrigins.includes(origin)) {
+                    return callback(null, true);
+                }
+
+                console.error(
+                    `CORS blocked origin: ${origin}`
+                );
+
+                return callback(
+                    new Error("Not allowed by CORS")
+                );
+            },
             credentials: true,
         })
     );
 
+    // Rate limiting for API
     app.use(
         "/api",
         rateLimit({
@@ -62,7 +85,7 @@ async function startServer() {
         })
     );
 
-
+    // Body parsers
     app.use(
         express.json({
             limit: "1mb",
@@ -76,29 +99,24 @@ async function startServer() {
         })
     );
 
+    // API health check
+    app.get("/", (_req, res) => {
+        res.status(200).json({
+            success: true,
+            message: "StudyHub API is running",
+        });
+    });
+
+    // API routes
     app.use("/api", apiRouter);
 
-    if (config.nodeEnv === "production") {
-        const distPath = path.join(
-            process.cwd(),
-            "dist"
-        );
-
-        app.use(
-            express.static(distPath)
-        );
-
-        app.get("*", (_req, res) => {
-            res.sendFile(
-                path.join(
-                    distPath,
-                    "index.html"
-                )
-            );
-        });
-    }
+    // 404 handler
     app.use(notFound);
+
+    // Error handler
     app.use(errorHandler);
+
+    // Start server
     const server = app.listen(
         PORT,
         "0.0.0.0",
@@ -108,10 +126,16 @@ async function startServer() {
             );
 
             console.log(
+                `Client URL: ${config.clientUrl}`
+            );
+
+            console.log(
                 "Uploaded videos are delivered through enrollment-checked lesson endpoints."
             );
         }
     );
+
+    // Graceful shutdown
     const shutdown = async () => {
         console.log(
             "\nShutting down StudyHub server..."
@@ -124,20 +148,15 @@ async function startServer() {
         process.exit(0);
     };
 
-    process.once(
-        "SIGINT",
-        shutdown
-    );
-
-    process.once(
-        "SIGTERM",
-        shutdown
-    );
+    process.once("SIGINT", shutdown);
+    process.once("SIGTERM", shutdown);
 }
+
 startServer().catch((err) => {
     console.error(
         "Failed to start StudyHub server:",
         err
     );
+
     process.exitCode = 1;
 });
