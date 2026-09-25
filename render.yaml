@@ -3,8 +3,9 @@ services:
     name: studyhub
     runtime: node
     plan: free
-    buildCommand: npm ci --include=dev && npm run build
-    startCommand: npm start
+    # Render hosts the Express API only. Vite is built by Vercel.
+    buildCommand: npm ci --include=dev
+    startCommand: node backend/server.js
     healthCheckPath: /api/health
     autoDeployTrigger: commit
     envVars:
@@ -26,10 +27,7 @@ services:
           name: studyhub
           envVarKey: RENDER_EXTERNAL_URL
       - key: CLIENT_URL
-        fromService:
-          type: web
-          name: studyhub
-          envVarKey: RENDER_EXTERNAL_URL
+        value: https://study-hub-learning-management-syste.vercel.app
       - key: SMTP_HOST
         value: smtp-relay.brevo.com
       - key: SMTP_PORT

@@ -9,6 +9,8 @@ const __dirname = path.dirname(__filename);
 
 export default defineConfig(() => ({
   root: __dirname,
+  // Keep frontend builds and local Vite runs aligned with the project-root .env.
+  envDir: path.resolve(__dirname, '..'),
 
   plugins: [react(), tailwindcss()],
 
