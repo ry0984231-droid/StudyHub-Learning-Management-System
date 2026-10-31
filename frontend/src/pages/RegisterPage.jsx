@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
 
-export const RegisterPage = ({ setCurrentView }) => {
+export const RegisterPage = ({ setCurrentView, returnTo }) => {
     const { register } = useAuth();
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -48,11 +48,24 @@ export const RegisterPage = ({ setCurrentView }) => {
             );
 
             if (res.success) {
-                setCurrentView(
-                    res.user?.role === "instructor"
-                        ? "instructor-dashboard"
-                        : "student-dashboard"
-                );
+                const userRole = res.user?.role;
+                const canOpenRequestedView =
+                    returnTo &&
+                    (!returnTo.view.startsWith("admin-") || userRole === "admin") &&
+                    (!returnTo.view.startsWith("instructor-") ||
+                        ["instructor", "admin"].includes(userRole));
+
+                if (canOpenRequestedView) {
+                    setCurrentView(returnTo.view, returnTo.params);
+                } else {
+                    setCurrentView(
+                        userRole === "admin"
+                            ? "admin-dashboard"
+                            : userRole === "instructor"
+                                ? "instructor-dashboard"
+                                : "student-dashboard"
+                    );
+                }
             } else {
                 setError(res.message || "Registration failed.");
             }
@@ -203,7 +216,12 @@ export const RegisterPage = ({ setCurrentView }) => {
                         Already have an account?{" "}
                         <button
                             type="button"
-                            onClick={() => setCurrentView("login")}
+                            onClick={() =>
+                                setCurrentView(
+                                    "login",
+                                    returnTo ? { returnTo } : {}
+                                )
+                            }
                             className="font-semibold text-blue-600 hover:text-blue-700"
                         >
                             Sign in

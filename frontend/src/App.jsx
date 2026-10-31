@@ -234,7 +234,12 @@ const MainAppContent = () => {
             );
 
         if (requiresAuth && !isAuthenticated)
-            return <LoginPage {...common} />;
+            return (
+                <LoginPage
+                    {...common}
+                    returnTo={params.returnTo || (view === "login" ? null : { view, params })}
+                />
+            );
 
         if (!roleAllowed)
             return <NotFoundPage {...common} />;
@@ -279,13 +284,13 @@ const MainAppContent = () => {
                 );
 
             case "login":
-                return <LoginPage {...common} />;
+                return <LoginPage {...common} returnTo={params.returnTo || null} />;
 
             case "register":
-                return <RegisterPage {...common} />;
+                return <RegisterPage {...common} returnTo={params.returnTo || null} />;
 
             case "forgot-password":
-                return <ForgotPasswordPage {...common} />;
+                return <ForgotPasswordPage {...common} returnTo={params.returnTo || null} />;
 
             case "student-dashboard":
             case "student-my-courses":

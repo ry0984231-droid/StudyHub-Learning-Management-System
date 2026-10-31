@@ -1,6 +1,6 @@
 const API_BASE = (
     import.meta.env.VITE_API_BASE_URL ||
-    "https://studyhub-learning-management-system-6.onrender.com/api"
+    "/api"
 ).replace(/\/+$/, "");
 
 const TOKEN_KEY = "studyhub_token";

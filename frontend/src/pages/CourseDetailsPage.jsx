@@ -181,7 +181,10 @@ const CourseDetailsPage = ({ courseId, setCurrentView }) => {
     );
 
     const enroll = async () => {
-        if (!isAuthenticated) return go("login");
+        if (!isAuthenticated)
+            return go("login", {
+                returnTo: { view: "course-details", params: { courseId } },
+            });
         if (isEnrolled) return go("learn", { courseId: course._id });
         if (finalPrice > 0) return go("checkout", { courseId: course._id });
 
@@ -201,7 +204,10 @@ const CourseDetailsPage = ({ courseId, setCurrentView }) => {
     };
 
     const toggleWishlist = async () => {
-        if (!isAuthenticated) return go("login");
+        if (!isAuthenticated)
+            return go("login", {
+                returnTo: { view: "course-details", params: { courseId } },
+            });
 
         try {
             const response = await api.toggleWishlist(course._id);
@@ -227,7 +233,10 @@ const CourseDetailsPage = ({ courseId, setCurrentView }) => {
             return setReviewMessage("Please write your review.");
         }
 
-        if (!isAuthenticated) return go("login");
+        if (!isAuthenticated)
+            return go("login", {
+                returnTo: { view: "course-details", params: { courseId } },
+            });
 
         try {
             setSubmitting(true);

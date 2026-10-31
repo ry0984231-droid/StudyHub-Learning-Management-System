@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { GraduationCap, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
 
-export const LoginPage = ({ setCurrentView }) => {
+export const LoginPage = ({ setCurrentView, returnTo }) => {
     const { login } = useAuth();
     const [form, setForm] = useState({ email: "", password: "" });
     const [show, setShow] = useState(false);
@@ -12,7 +12,18 @@ export const LoginPage = ({ setCurrentView }) => {
     const change = e =>
         setForm({ ...form, [e.target.name]: e.target.value });
 
-    const redirect = role =>
+    const redirect = (role) => {
+        const canOpenRequestedView =
+            returnTo &&
+            (!returnTo.view.startsWith("admin-") || role === "admin") &&
+            (!returnTo.view.startsWith("instructor-") ||
+                ["instructor", "admin"].includes(role));
+
+        if (canOpenRequestedView) {
+            setCurrentView(returnTo.view, returnTo.params);
+            return;
+        }
+
         setCurrentView(
             role === "admin"
                 ? "admin-dashboard"
@@ -20,6 +31,7 @@ export const LoginPage = ({ setCurrentView }) => {
                     ? "instructor-dashboard"
                     : "student-dashboard"
         );
+    };
 
     const submit = async e => {
         e.preventDefault();
@@ -101,7 +113,12 @@ export const LoginPage = ({ setCurrentView }) => {
                                 </label>
                                 <button
                                     type="button"
-                                    onClick={() => setCurrentView("forgot-password")}
+                                    onClick={() =>
+                                        setCurrentView(
+                                            "forgot-password",
+                                            returnTo ? { returnTo } : {}
+                                        )
+                                    }
                                     className="text-sm text-blue-600 hover:underline"
                                 >
                                     Forgot password?
@@ -150,7 +167,12 @@ export const LoginPage = ({ setCurrentView }) => {
                         Don't have an account?{" "}
                         <button
                             type="button"
-                            onClick={() => setCurrentView("register")}
+                            onClick={() =>
+                                setCurrentView(
+                                    "register",
+                                    returnTo ? { returnTo } : {}
+                                )
+                            }
                             className="font-semibold text-blue-600 hover:underline"
                         >
                             Create Account

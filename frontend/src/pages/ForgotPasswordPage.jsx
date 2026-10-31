@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 import { api } from "../services/api.js";
 
-export const ForgotPasswordPage = ({ setCurrentView }) => {
+export const ForgotPasswordPage = ({ setCurrentView, returnTo }) => {
     const [step, setStep] = useState(1);
     const [email, setEmail] = useState("");
     const [otp, setOtp] = useState("");
@@ -172,7 +172,9 @@ export const ForgotPasswordPage = ({ setCurrentView }) => {
 
                 <button
                     type="button"
-                    onClick={() => setCurrentView("login")}
+                    onClick={() =>
+                        setCurrentView("login", returnTo ? { returnTo } : {})
+                    }
                     className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors"
                 >
                     <ArrowLeft className="w-4 h-4" /> Back to Sign In
@@ -352,7 +354,9 @@ export const ForgotPasswordPage = ({ setCurrentView }) => {
 
                             <button
                                 type="button"
-                                onClick={() => setCurrentView("login")}
+                                onClick={() =>
+                                    setCurrentView("login", returnTo ? { returnTo } : {})
+                                }
                                 className="mt-6 w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2"
                             >
                                 Continue to Sign In <ArrowRight className="w-4 h-4" />

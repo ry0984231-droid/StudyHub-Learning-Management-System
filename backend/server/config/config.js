@@ -5,7 +5,8 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
 
 export const config = {
-    port: Number(process.env.PORT || 3000),
+    // Match the local frontend proxy and Docker configuration.
+    port: Number(process.env.PORT || 5000),
 
     nodeEnv:
         process.env.NODE_ENV || "development",
@@ -16,11 +17,11 @@ export const config = {
     clientUrl:
         process.env.CLIENT_URL ||
         process.env.APP_URL ||
-        "http://localhost:3000",
+        "http://localhost:5173",
 
     baseUrl:
         process.env.APP_URL ||
-        "http://localhost:3000",
+        "http://localhost:5000",
 
     jwtSecret:
         process.env.JWT_SECRET || "",
