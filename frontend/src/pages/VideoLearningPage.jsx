@@ -23,25 +23,32 @@ export const VideoLearningPage = ({
     const [isEnrolled, setIsEnrolled] = useState(false);
     const [certificate, setCertificate] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState("");
     const [sidebar, setSidebar] = useState(true);
 
     useEffect(() => {
         const load = async () => {
             try {
                 setLoading(true);
+                setLoadError("");
+                setCourse(null);
+                setLesson(null);
 
                 const courseRes = await api.getCourse(courseId);
 
-                if (courseRes.success) {
-                    const data = courseRes.data;
-                    setCourse(data);
-
-                    const lessons = data.lessons || [];
-                    setLesson(
-                        lessons.find((x) => x._id === initialLessonId) ||
-                        lessons[0]
-                    );
+                if (!courseRes?.success || !courseRes.data) {
+                    throw new Error(courseRes?.message || "Course could not be loaded.");
                 }
+
+                const data = courseRes.data;
+                const lessons = Array.isArray(data.lessons) ? data.lessons : [];
+                const selectedLesson =
+                    lessons.find((x) => x._id === initialLessonId) || lessons[0];
+                if (!selectedLesson) {
+                    throw new Error("This course does not have any lessons yet.");
+                }
+                setCourse(data);
+                setLesson(selectedLesson);
 
                 const enrollment = await api.checkEnrollment(courseId);
                 setIsEnrolled(Boolean(enrollment.success && enrollment.isEnrolled));
@@ -56,6 +63,7 @@ export const VideoLearningPage = ({
                 }
             } catch (err) {
                 console.error("Classroom error:", err);
+                setLoadError(err.message || "Unable to load this course. Please try again.");
             } finally {
                 setLoading(false);
             }
@@ -64,12 +72,32 @@ export const VideoLearningPage = ({
         load();
     }, [courseId, initialLessonId]);
 
-    if (loading || !course || !lesson) {
+    if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
                 <div className="text-center">
                     <div className="w-8 h-8 mx-auto rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
                     <p className="mt-2 text-xs text-gray-500">Loading...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (loadError || !course || !lesson) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 dark:bg-slate-950">
+                <div className="max-w-md rounded-2xl border bg-white p-8 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                    <BookOpen className="mx-auto h-10 w-10 text-blue-600" />
+                    <h1 className="mt-4 text-xl font-bold">Unable to open this course</h1>
+                    <p className="mt-2 text-sm text-gray-500 dark:text-slate-400">
+                        {loadError || "Course information is unavailable."}
+                    </p>
+                    <button
+                        onClick={() => setCurrentView("course-details", { courseId })}
+                        className="mt-5 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+                    >
+                        Back to Course
+                    </button>
                 </div>
             </div>
         );
