@@ -317,7 +317,25 @@ const CourseDetailsPage = ({ courseId, setCurrentView }) => {
                     <main className="min-w-0">
 
                         {/* HERO */}
-                        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg shadow-slate-200/60 dark:border-slate-800 dark:bg-slate-900 dark:shadow-black/20">
+
+                            <div className="relative isolate flex min-h-44 items-end overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-900 px-6 py-6 sm:min-h-52 sm:px-8">
+                                <div aria-hidden="true" className="absolute -right-12 -top-28 h-72 w-72 rounded-full border border-white/10" />
+                                <div aria-hidden="true" className="absolute -right-2 -top-16 h-52 w-52 rounded-full border border-white/10" />
+                                <div aria-hidden="true" className="absolute -bottom-24 right-24 h-48 w-48 rounded-full bg-blue-500/20 blur-3xl" />
+                                <div className="relative z-10">
+                                    <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.18em] text-blue-100 backdrop-blur-sm">
+                                        <Sparkles size={13} /> StudyHub Learning Path
+                                    </span>
+                                    <p className="mt-4 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                                        Learn with a clear plan.
+                                    </p>
+                                    <p className="mt-1 max-w-xl text-sm text-blue-100/75">
+                                        Practical lessons, structured for steady progress.
+                                    </p>
+                                </div>
+                                <GraduationCap aria-hidden="true" className="absolute bottom-5 right-7 h-20 w-20 text-white/10 sm:right-10 sm:h-28 sm:w-28" strokeWidth={1.2} />
+                            </div>
 
                             <div className="p-6 sm:p-8">
 
@@ -849,7 +867,7 @@ const CourseDetailsPage = ({ courseId, setCurrentView }) => {
                     {/* RIGHT PURCHASE CARD */}
                     <aside className="xl:sticky xl:top-24">
 
-                        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 dark:border-slate-800 dark:bg-slate-900 dark:shadow-black/20">
 
                             {/* THUMBNAIL */}
                             <div className="relative aspect-video overflow-hidden bg-slate-900">
@@ -1037,7 +1055,7 @@ const CourseDetailsPage = ({ courseId, setCurrentView }) => {
                     <div className="overflow-hidden rounded-2xl bg-black">
                         {course.videoPreview ? (
                             <VideoPlayer
-                                src={course.videoPreview}
+                                videoUrl={course.videoPreview}
                                 title={course.title}
                             />
                         ) : (
